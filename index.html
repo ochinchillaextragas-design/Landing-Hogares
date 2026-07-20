@@ -1,52 +1,618 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-AR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extragas | Recarga a Domicilio Urgente</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extragas | Gas a Granel sin cortes — Cotizá ahora</title>
+<meta name="description" content="Pedí tu carga de gas a granel para tu hogar, country, industria, campo o comercio. Cotización directa con un comercial de Extragas, sin vueltas.">
+
+<!--
+  NOTA PARA GITHUB PAGES + DOMINIO PROPIO:
+  Cuando IT te dé el dominio, creá un archivo llamado "CNAME" (sin extensión)
+  en la raíz del repo con el dominio adentro, por ejemplo:
+    granel.extragas.com.ar
+  y configurá el registro DNS (A o CNAME según corresponda) apuntando a GitHub Pages.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+  /* ===== Tokens de marca Extragas ===== */
+  :root{
+    --azul: #060E9F;
+    --azul-oscuro: #050A6E;
+    --azul-suave: #E7E9FA;
+    --verde: #00953A;
+    --verde-suave: #E7F7ED;
+    --urgencia: #E1512A;      /* acento cálido solo para la zona "reserva/vacío" del tanque y el badge de urgencia */
+    --texto: #12142B;
+    --texto-suave: #4B4E6B;
+    --fondo: #FFFFFF;
+    --fondo-alterno: #F5F6FB;
+    --borde: #DFE1EF;
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 28px;
+    --font: 'Barlow', -apple-system, sans-serif;
+    --wa-numero: 5492226688006; /* TODO: número DEMO (Brian Nantón). Confirmar número comercial definitivo antes de publicar. */
+    --max-width: 1180px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    font-family: var(--font);
+    color: var(--texto);
+    background: var(--fondo);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  img{ max-width:100%; display:block; }
+  a{ color: inherit; }
+  .contenedor{
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0 0 0 0); white-space:nowrap;
+  }
+  :focus-visible{ outline: 3px solid var(--verde); outline-offset: 2px; }
+
+  /* ===== Header ===== */
+  .site-header{
+    position: sticky; top:0; z-index: 40;
+    background: var(--fondo);
+    border-bottom: 1px solid var(--borde);
+  }
+  .site-header__inner{
+    display:flex; align-items:center; justify-content:space-between;
+    gap: 16px; padding: 14px 0;
+  }
+  .logo{ text-decoration:none; display:inline-block; line-height:0; }
+  .logo-img{ height: 36px; width:auto; display:block; } /* 36px de alto ~107px de ancho: por encima del mínimo online de 80px */
+  .footer-logo-chip{
+    display:inline-block; background:#fff; padding:10px 18px;
+    border-radius: 12px; margin-bottom: 14px; line-height:0;
+  }
+  .logo-img--footer{ height: 28px; }
+  .header-contacto{
+    display:flex; align-items:center; gap: 18px;
+  }
+  .header-tel{
+    display:flex; flex-direction:column; text-decoration:none; text-align:right;
+    font-size: 13px; color: var(--texto-suave);
+  }
+  .header-tel strong{ font-size:16px; color: var(--texto); font-weight:700; }
+  .btn-wa-header{
+    display:flex; align-items:center; gap:8px;
+    background: var(--verde-suave); color: var(--verde);
+    border: 1px solid var(--verde);
+    padding: 9px 16px; border-radius: 999px;
+    font-weight:700; font-size:14px; text-decoration:none;
+    white-space: nowrap;
+  }
+  .btn-wa-header:hover{ background: var(--verde); color:#fff; }
+
+  /* ===== Botones genéricos ===== */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    font-family: var(--font); font-weight: 800; font-size: 17px;
+    padding: 17px 32px; border-radius: 999px; border: none;
+    cursor:pointer; text-decoration:none; transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{ transform: translateY(-2px); }
+  .btn-primario{
+    background: var(--verde); color:#fff;
+    box-shadow: 0 10px 24px -8px rgba(0,149,58,.55);
+  }
+  .btn-primario:hover{ box-shadow: 0 14px 28px -8px rgba(0,149,58,.65); }
+  .btn-secundario{
+    background: transparent; color:#fff; border: 2px solid rgba(255,255,255,.55);
+  }
+  .btn-secundario:hover{ border-color:#fff; }
+  .btn-bloque{ width:100%; }
+
+  /* ===== Hero ===== */
+  .hero{
+    /* Foto real (camión cargando granel) + degradé azul de marca encima para que el texto
+       siempre se lea, sin importar cuán clara sea la foto de fondo. */
+    background:
+      linear-gradient(100deg, rgba(5,10,110,.95) 0%, rgba(5,10,110,.88) 30%, rgba(5,10,110,.58) 58%, rgba(5,10,110,.28) 100%),
+      var(--azul-oscuro) url('assets/hero-camion.jpg') center 60%/cover no-repeat;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    padding: 64px 0 56px;
+  }
+  .tanque-card{
+    background: rgba(5,10,110,.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: var(--radius-lg);
+    padding: 30px 34px;
+  }
+  .hero__inner{
+    display:grid; grid-template-columns: 1.15fr 0.85fr;
+    gap: 48px; align-items:center;
+  }
+  .hero__eyebrow{
+    display:inline-block; font-size:13px; font-weight:800; letter-spacing: 1.4px;
+    text-transform: uppercase; color: #BFE8CC;
+    background: rgba(255,255,255,.08);
+    padding: 7px 14px; border-radius: 999px;
+    margin-bottom: 22px;
+  }
+  .hero h1{
+    font-size: clamp(34px, 5vw, 54px);
+    font-weight: 900; line-height: 1.06; margin: 0 0 20px;
+    letter-spacing: -0.5px;
+  }
+  .hero h1 em{
+    font-style: normal; color: #7CF0A3;
+  }
+  .hero p.lead{
+    font-size: 18px; color: rgba(255,255,255,.85); max-width: 480px;
+    margin: 0 0 30px;
+  }
+  .hero__ctas{ display:flex; flex-wrap:wrap; align-items:center; gap:18px; }
+  .hero__microtrust{
+    margin-top:16px; font-size:14px; color: rgba(255,255,255,.7);
+    display:flex; align-items:center; gap:8px;
+  }
+  .hero__microtrust svg{ flex-shrink:0; }
+
+  /* ---- Elemento firma: el tanque que se vacía ---- */
+  .tanque-wrap{ display:flex; justify-content:center; }
+  .tanque{
+    display:flex; align-items:flex-end; gap:18px;
+  }
+  .tanque__cuerpo{
+    position: relative;
+    width: 96px; height: 250px;
+    border: 3px solid rgba(255,255,255,.35);
+    border-radius: 20px;
+    background: rgba(255,255,255,.05);
+    overflow: hidden;
+  }
+  .tanque__cuerpo::before{ /* tapa del tanque */
+    content:""; position:absolute; top:-14px; left:50%; transform: translateX(-50%);
+    width: 46px; height: 16px; border-radius: 8px 8px 0 0;
+    background: rgba(255,255,255,.35);
+  }
+  .tanque__fill{
+    position:absolute; left:0; right:0; bottom:0;
+    height: 82%;
+    background: linear-gradient(180deg, var(--verde) 0%, var(--verde) 55%, #F2B705 78%, var(--urgencia) 100%);
+    animation: drenar 7s ease-in-out infinite alternate;
+  }
+  @keyframes drenar{
+    from{ height: 84%; }
+    to{ height: 16%; }
+  }
+  .tanque__linea{
+    position:absolute; left:0; right:0; border-top: 1px dashed rgba(255,255,255,.55);
+  }
+  .tanque__linea--reserva{ bottom: 22%; }
+  .tanque__etiquetas{
+    display:flex; flex-direction:column; justify-content:space-between;
+    height:250px; font-size:11px; font-weight:800; letter-spacing:.6px;
+    color: rgba(255,255,255,.65); text-transform:uppercase;
+  }
+  .tanque__caption{
+    max-width: 170px; font-size: 14px; color: rgba(255,255,255,.75);
+    margin-top: 18px; text-align:center;
+  }
+  .tanque__caption strong{ color:#fff; }
+
+  @media (prefers-reduced-motion: reduce){
+    .tanque__fill{ animation: none; height: 40%; }
+  }
+
+  /* ===== Franja de beneficios ===== */
+  .beneficios{ padding: 64px 0; background: var(--fondo); }
+  .seccion-titulo{
+    text-align:center; max-width: 640px; margin: 0 auto 40px;
+  }
+  .seccion-titulo h2{
+    font-size: clamp(26px, 3.4vw, 36px); font-weight:900; margin:0 0 12px;
+    color: var(--azul);
+  }
+  .seccion-titulo p{ color: var(--texto-suave); font-size:16px; margin:0; }
+
+  .grid-beneficios{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  }
+  .card{
+    background: var(--fondo-alterno);
+    border: 1px solid var(--borde);
+    border-radius: var(--radius-md);
+    padding: 26px 22px;
+  }
+  .card__icono{
+    width:48px; height:48px; border-radius:12px;
+    background: var(--verde-suave); color: var(--verde);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:16px;
+  }
+  .card h3{ font-size:18px; margin: 0 0 8px; color: var(--texto); }
+  .card p{ font-size: 14.5px; color: var(--texto-suave); margin:0; }
+
+  /* ===== Cómo funciona ===== */
+  .como-funciona{ padding: 64px 0; background: var(--fondo-alterno); }
+  .pasos{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    counter-reset: paso;
+  }
+  .paso{ position:relative; padding-left: 4px; }
+  .paso__numero{
+    width:40px; height:40px; border-radius:50%;
+    background: var(--azul); color:#fff; font-weight:900; font-size:17px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 14px;
+  }
+  .paso h3{ font-size:16.5px; margin:0 0 6px; }
+  .paso p{ font-size:14px; color: var(--texto-suave); margin:0; }
+
+  /* ===== Formulario ===== */
+  .cotizar{ padding: 68px 0; background: var(--fondo); }
+  .cotizar__caja{
+    max-width: 720px; margin: 0 auto;
+    background: var(--fondo-alterno);
+    border: 1px solid var(--borde);
+    border-radius: var(--radius-lg);
+    padding: 40px clamp(20px, 5vw, 48px);
+  }
+  .cotizar__caja h2{ font-size: clamp(24px,3vw,30px); margin: 0 0 8px; color: var(--azul); }
+  .cotizar__caja > p{ color: var(--texto-suave); margin: 0 0 28px; font-size:15px; }
+
+  .campo{ margin-bottom: 18px; }
+  .campo label{
+    display:block; font-size:13.5px; font-weight:700; margin-bottom:6px; color: var(--texto);
+  }
+  .campo input, .campo select, .campo textarea{
+    width:100%; font-family: var(--font); font-size:15px;
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--borde); background: #fff; color: var(--texto);
+  }
+  .campo input:focus, .campo select:focus, .campo textarea:focus{
+    border-color: var(--azul); outline: none;
+  }
+  .campo-doble{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .campo textarea{ resize: vertical; min-height: 84px; }
+
+  .cotizar__nota{
+    font-size: 13px; color: var(--texto-suave); margin-top: 14px; text-align:center;
+  }
+  .cotizar__confirmacion{
+    display:none; margin-top:18px; padding: 14px 16px;
+    background: var(--verde-suave); border: 1px solid var(--verde);
+    color: #075B26; border-radius: var(--radius-sm); font-size: 14px; font-weight:600;
+  }
+  .cotizar__confirmacion.activa{ display:block; }
+
+  /* ===== Footer ===== */
+  .site-footer{ background: var(--azul-oscuro); color: rgba(255,255,255,.85); padding: 48px 0 28px; }
+  .footer-grid{ display:grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+  .footer-grid h4{ font-size:13px; text-transform:uppercase; letter-spacing:.6px; color: rgba(255,255,255,.55); margin:0 0 12px; }
+  .footer-grid p, .footer-grid a{ font-size:14px; color: rgba(255,255,255,.8); text-decoration:none; margin:0 0 6px; display:block; }
+  .footer-grid a:hover{ color:#fff; text-decoration:underline; }
+  .footer-legal{
+    border-top: 1px solid rgba(255,255,255,.14); padding-top: 18px;
+    font-size: 12.5px; color: rgba(255,255,255,.5);
+  }
+
+  /* ===== Botón flotante de WhatsApp (siempre visible) ===== */
+  .wa-flotante{
+    position: fixed; right: 20px; bottom: 20px; z-index: 60;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: var(--verde); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 12px 24px -6px rgba(0,0,0,.35);
+    text-decoration:none;
+  }
+  .wa-flotante:hover{ background: #007c30; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 980px){
+    .hero{
+      background:
+        linear-gradient(rgba(5,10,110,.9), rgba(5,10,110,.9)),
+        var(--azul-oscuro) url('assets/hero-camion.jpg') center/cover no-repeat;
+    }
+    .hero__inner{ grid-template-columns: 1fr; }
+    .tanque-wrap{ order:-1; margin-bottom: 8px; }
+    .tanque__cuerpo{ height: 190px; }
+    .tanque__etiquetas{ height:190px; }
+    .grid-beneficios{ grid-template-columns: repeat(2,1fr); }
+    .pasos{ grid-template-columns: repeat(2,1fr); }
+    .footer-grid{ grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 620px){
+    .header-tel{ display:none; }
+    .grid-beneficios{ grid-template-columns: 1fr; }
+    .pasos{ grid-template-columns: 1fr; }
+    .campo-doble{ grid-template-columns: 1fr; }
+    .footer-grid{ grid-template-columns: 1fr; }
+    .hero{ padding: 44px 0 40px; }
+  }
+</style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body>
 
-    <!-- Hero Section -->
-    <section class="bg-white py-12 md:py-20 px-4 text-center border-b-4 border-blue-600">
-        <div class="max-w-3xl mx-auto">
-            <h2 class="text-blue-600 font-bold tracking-wide uppercase text-sm mb-2">Abastecimiento Inmediato</h2>
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
-                ¡No Te Quedes Sin Gas! <span class="text-red-600">Recarga a Domicilio Rápida y Segura</span>
-            </h1>
-            <p class="text-lg md:text-xl text-gray-600 mb-8">
-                Atención prioritaria para hogares. Camiones listos para despachar en tu zona garantizando el peso exacto y la máxima seguridad.
-            </p>
-            
-            <!-- WhatsApp CTA Button -->
-            <a href="https://wa.me/TUNUMERODEWHATSAPP" target="_blank" class="inline-flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-bold text-xl py-4 px-10 rounded-full shadow-xl transform transition hover:scale-105 w-full md:w-auto">
-                <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                Pedir Recarga AHORA
-            </a>
-            <p class="mt-4 text-sm text-gray-500 font-medium">Respuesta promedio: Menos de 5 minutos</p>
-        </div>
-    </section>
+<header class="site-header">
+  <div class="contenedor site-header__inner">
+    <a href="#" class="logo"><img src="assets/logo-extragas.png" alt="Extragas" class="logo-img"></a>
+    <div class="header-contacto">
+      <a class="header-tel" href="tel:+542226433000">
+        Llamanos
+        <strong>02226-433000</strong>
+      </a>
+      <a class="btn-wa-header" id="wa-header" href="#" target="_blank" rel="noopener">
+        WhatsApp
+      </a>
+    </div>
+  </div>
+</header>
 
-    <!-- Trust Elements -->
-    <section class="py-10 bg-gray-50">
-        <div class="max-w-5xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-                <div class="text-green-500 text-4xl mb-3">✓</div>
-                <h3 class="font-bold text-lg mb-2">Entrega Rápida</h3>
-                <p class="text-gray-600">Priorizamos tu urgencia para que tu hogar vuelva a la normalidad hoy mismo.</p>
-            </div>
-            <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-                <div class="text-green-500 text-4xl mb-3">✓</div>
-                <h3 class="font-bold text-lg mb-2">Peso Exacto Garantizado</h3>
-                <p class="text-gray-600">Pagas exactamente por lo que recibes. Transparencia total en cada carga.</p>
-            </div>
-            <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-                <div class="text-green-500 text-4xl mb-3">✓</div>
-                <h3 class="font-bold text-lg mb-2">Múltiples Medios de Pago</h3>
-                <p class="text-gray-600">Efectivo, tarjetas o transferencias. Facilidades para tu comodidad.</p>
-            </div>
+<section class="hero">
+  <div class="contenedor hero__inner">
+    <div>
+      <span class="hero__eyebrow">Gas a granel · hogares, countries, industria, agro y comercios</span>
+      <h1>No te quedes sin gas.<br><em>Llamanos.</em></h1>
+      <p class="lead">
+        Nos ocupamos nosotros de que el tanque nunca llegue a cero: coordinamos la carga a granel
+        antes de que se te complique la cocina, la caldera o la producción.
+      </p>
+      <div class="hero__ctas">
+        <a href="#cotizar" class="btn btn-primario">Cotizar Ahora</a>
+        <a href="#como-funciona" class="btn btn-secundario">Cómo funciona</a>
+      </div>
+      <p class="hero__microtrust">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 22c5-4 8-8.5 8-13a8 8 0 1 0-16 0c0 4.5 3 9 8 13Z" stroke="#7CF0A3" stroke-width="2"/><circle cx="12" cy="9" r="2.6" stroke="#7CF0A3" stroke-width="2"/></svg>
+        Te contesta un comercial nuestro, no un contestador.
+      </p>
+    </div>
+
+    <!-- Elemento visual de marca: tanque que se vacía, refuerza el mensaje "no te quedes sin gas".
+         Va en una tarjeta translúcida para que se lea siempre, sin importar qué parte de la foto quede detrás. -->
+    <div class="tanque-wrap">
+      <div class="tanque-card">
+        <div class="tanque" aria-hidden="true">
+          <div class="tanque__etiquetas">
+            <span>Lleno</span>
+            <span>Reserva</span>
+            <span>Vacío</span>
+          </div>
+          <div class="tanque__cuerpo">
+            <span class="tanque__linea tanque__linea--reserva"></span>
+            <div class="tanque__fill"></div>
+          </div>
         </div>
-    </section>
+        <p class="tanque__caption"><strong>Así es quedarse sin aviso.</strong><br>Con Extragas, no pasa.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="beneficios">
+  <div class="contenedor">
+    <div class="seccion-titulo">
+      <h2>Por qué coordinar tu granel con nosotros</h2>
+      <p>No vendemos un commodity: nos hacemos cargo de que la energía nunca sea tu problema.</p>
+    </div>
+    <div class="grid-beneficios">
+      <div class="card">
+        <div class="card__icono">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0Z" stroke="currentColor" stroke-width="2"/><path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Sin cortes de golpe</h3>
+        <p>Programamos la recarga antes de que el tanque llegue a la reserva. Vos no te enterás cuando falta.</p>
+      </div>
+      <div class="card">
+        <div class="card__icono">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Presión pareja todo el año</h3>
+        <p>Para que la cocina, la caldera o la línea de producción no se resientan por un tanque bajo.</p>
+      </div>
+      <div class="card">
+        <div class="card__icono">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H7l-3 3V4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Atención directa</h3>
+        <p>Hablás con un comercial de Extragas por WhatsApp, no con un bot ni una casilla que nadie revisa.</p>
+      </div>
+      <div class="card">
+        <div class="card__icono">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l3-8 4 16 3-8h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Cobertura real</h3>
+        <p>Salimos desde Cañuelas y llegamos a hogares, countries, industrias, campos y comercios de la zona.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="como-funciona" id="como-funciona">
+  <div class="contenedor">
+    <div class="seccion-titulo">
+      <h2>Cómo funciona</h2>
+      <p>Cuatro pasos, sin vueltas.</p>
+    </div>
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso__numero">1</div>
+        <h3>Nos contás tu situación</h3>
+        <p>Completás el formulario con tu localidad y el tipo de instalación.</p>
+      </div>
+      <div class="paso">
+        <div class="paso__numero">2</div>
+        <h3>Te cotizamos el mismo día</h3>
+        <p>Un comercial nuestro te escribe por WhatsApp con precio y condiciones.</p>
+      </div>
+      <div class="paso">
+        <div class="paso__numero">3</div>
+        <h3>Coordinamos la carga</h3>
+        <p>Vemos fecha, tanque y logística según lo que necesites.</p>
+      </div>
+      <div class="paso">
+        <div class="paso__numero">4</div>
+        <h3>Te olvidás del gas</h3>
+        <p>Programamos la próxima recarga antes de que se acabe.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cotizar" id="cotizar">
+  <div class="contenedor">
+    <div class="cotizar__caja">
+      <h2>Contanos y te cotizamos hoy</h2>
+      <p>Con estos datos, el comercial que te contacta ya sabe con quién habla y qué necesitás. Nada de empezar de cero.</p>
+
+      <form id="form-cotizar" novalidate>
+        <div class="campo-doble">
+          <div class="campo">
+            <label for="nombre">Nombre y apellido</label>
+            <input type="text" id="nombre" name="nombre" required autocomplete="name">
+          </div>
+          <div class="campo">
+            <label for="telefono">WhatsApp / Teléfono</label>
+            <input type="tel" id="telefono" name="telefono" required autocomplete="tel" placeholder="Ej: 2226 123456">
+          </div>
+        </div>
+
+        <div class="campo-doble">
+          <div class="campo">
+            <label for="localidad">Localidad</label>
+            <input type="text" id="localidad" name="localidad" required autocomplete="address-level2">
+          </div>
+          <div class="campo">
+            <label for="instalacion">Tipo de instalación</label>
+            <select id="instalacion" name="instalacion" required>
+              <option value="" disabled selected>Elegí una opción</option>
+              <option value="Hogar">Hogar</option>
+              <option value="Country o barrio cerrado">Country o barrio cerrado</option>
+              <option value="Industria">Industria</option>
+              <option value="Agro">Agro</option>
+              <option value="Comercio o gastronomía">Comercio o gastronomía</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="tanque">Tamaño de tanque aproximado (si lo sabés)</label>
+          <select id="tanque" name="tanque">
+            <option value="No lo sé todavía" selected>No lo sé todavía</option>
+            <option value="Menos de 1.000 litros">Menos de 1.000 litros</option>
+            <option value="1.000 a 4.000 litros">1.000 a 4.000 litros</option>
+            <option value="4.000 a 8.000 litros">4.000 a 8.000 litros</option>
+            <option value="Más de 8.000 litros">Más de 8.000 litros</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="comentario">Comentario (opcional)</label>
+          <textarea id="comentario" name="comentario" placeholder="Contanos si tenés apuro, si es instalación nueva, etc."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primario btn-bloque">Enviar y hablar con un comercial</button>
+
+        <p class="cotizar__nota">
+          Al enviar, te abrimos WhatsApp con tus datos cargados para que hables directo con un comercial de Extragas.
+        </p>
+        <div class="cotizar__confirmacion" id="confirmacion" role="status">
+          Te estamos abriendo WhatsApp con tus datos. Si no se abre solo, escribinos directo al
+          <strong>+54 9 2226 688006</strong>.
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="contenedor">
+    <div class="footer-grid">
+      <div>
+        <a href="#" class="logo footer-logo-chip"><img src="assets/logo-extragas.png" alt="Extragas" class="logo-img logo-img--footer"></a>
+        <p style="margin-top:12px; max-width:320px;">
+          Extragas es una marca comercial de Cañuelas Gas S.A. Coordinamos el suministro de gas envasado
+          y a granel para que la energía nunca sea una preocupación.
+        </p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <a href="tel:+542226433000">Tel: 02226-433000 / 432000</a>
+        <a id="wa-footer" href="#" target="_blank" rel="noopener">WhatsApp comercial</a>
+        <a href="https://extragas.com.ar" target="_blank" rel="noopener">extragas.com.ar</a>
+      </div>
+      <div>
+        <h4>Planta</h4>
+        <p>Ruta Nac. 205 Km 69,5 (1814)<br>Cañuelas, Buenos Aires</p>
+      </div>
+    </div>
+    <div class="footer-legal">
+      Cañuelas Gas S.A. — CUIT 30-63718290-7 · Este sitio se aloja temporalmente en GitHub Pages
+      hasta contar con el dominio propio.
+    </div>
+  </div>
+</footer>
+
+<a class="wa-flotante" id="wa-flotante" href="#" target="_blank" rel="noopener" aria-label="Hablar por WhatsApp con un comercial de Extragas">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.3A8 8 0 1 1 20 12Z" stroke="#fff" stroke-width="1.8"/><path d="M9 9.3c0 3.5 2.7 6.2 6.2 6.2.5 0 .9-.4.7-.9l-.5-1.4a.8.8 0 0 0-.9-.5l-1 .2a4.6 4.6 0 0 1-2.6-2.6l.2-1a.8.8 0 0 0-.5-.9L9.6 8.4a.7.7 0 0 0-.9.7Z" fill="#fff"/></svg>
+</a>
+
+<script>
+  // Número de WhatsApp comercial (DEMO — Brian Nantón). Reemplazar por el número
+  // definitivo de cada área comercial antes de publicar en producción.
+  const WA_NUMERO = "5492226688006";
+
+  function armarLinkWA(mensaje){
+    return `https://wa.me/${WA_NUMERO}?text=${encodeURIComponent(mensaje)}`;
+  }
+
+  // Botones de WhatsApp "siempre visibles" (header, footer, flotante) con mensaje genérico
+  const mensajeGenerico = "Hola, quiero información sobre gas a granel para mi hogar, country, industria, campo o comercio.";
+  const linkGenerico = armarLinkWA(mensajeGenerico);
+  ["wa-header", "wa-footer", "wa-flotante"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.href = linkGenerico;
+  });
+
+  // Formulario: arma un mensaje de WhatsApp con todos los datos para que el
+  // comercial ya sepa con quién habla, y lo abre en una pestaña nueva.
+  const form = document.getElementById("form-cotizar");
+  const confirmacion = document.getElementById("confirmacion");
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    if (!form.checkValidity()){
+      form.reportValidity();
+      return;
+    }
+
+    const datos = new FormData(form);
+    const mensaje =
+`Hola, quiero cotizar gas a granel.
+
+Nombre: ${datos.get("nombre")}
+WhatsApp/Teléfono: ${datos.get("telefono")}
+Localidad: ${datos.get("localidad")}
+Tipo de instalación: ${datos.get("instalacion")}
+Tamaño de tanque: ${datos.get("tanque")}
+Comentario: ${datos.get("comentario") || "-"}`;
+
+    window.open(armarLinkWA(mensaje), "_blank", "noopener");
+    confirmacion.classList.add("activa");
+  });
+</script>
+
 </body>
 </html>
